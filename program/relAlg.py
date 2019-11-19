@@ -355,13 +355,44 @@ def project(rel, *att_list):
                 obj = []
                 addToFinalResult(j, obj, my_result_list, indexes_to_add)
 
-        for r in my_result_list:
+    for r in my_result_list:
             print(r)
 
 
 def join_using_tree(rel1, att1, rel2, att2):
-    if rel1 == supplier_string:
-        print("hey")
+    p_key = None
+    search_in_tree_rel = None
+    is_tree_existing_rel1 = is_bplustree_existing(rel1)
+    if is_tree_existing_rel1:
+        search_in_tree_rel = rel1
+    is_tree_existing_rel2 = is_bplustree_existing(rel2)
+    if is_tree_existing_rel2:
+        search_in_tree_rel = rel2
+    if att1 == "pid" or att2 == "pid":
+        p_key = "pid"
+    if att1 == "sid" or att2 == "sid":
+        p_key = "sid"
+    if rel1 == supplier_string or rel2 == supplier_string:
+        supplier_file_names = get_files(supplier_data_folder)
+        supplier_list = []
+        for i in supplier_file_names:
+            h = read_file_content(supplier_data_folder, i)
+            for j in h:
+                supplier_list.append(j)
+                search_in_tree(supplier_string,p_key,"=",j[0])
+                print("df")
+    if rel1 == supply_string or rel2 == supply_string:
+        supplier_file_names = get_files(supply_data_folder)
+        supply_list = []
+        for i in supplier_file_names:
+            h = read_file_content(supply_data_folder, i)
+            for j in h:
+                supply_list.append(j)
+                search_in_tree(supply_string,p_key,"=",j[1])
+                print("df")
+
+
+
 
 
 
@@ -369,9 +400,10 @@ def join(rel1, att1, rel2, att2):
     if att1 != att2:
         raise AttributeError('Sorry, attributes must be same')
     file_to_be_created = rel1+"_"+rel2+"_"+str(int(time.time()))+".txt"
-    if is_bplustree_existing(rel1) or is_bplustree_existing(rel2):
-        join_using_tree(rel1,att1,rel2,att2)
-        return 
+    # if is_bplustree_existing(rel1) or is_bplustree_existing(rel2):
+    #     join_using_tree(rel1, att1, rel2, att2)
+    #     return
+
     supplier_file_names = get_files(supplier_data_folder)
     supplier_list = []
     for i in supplier_file_names:
@@ -440,7 +472,6 @@ def join(rel1, att1, rel2, att2):
             index_attr_2 = supply_pid_idx
         elif att2 == "cost":
             index_attr_2 = supply_cost_idx
-
     result = []
     for x in rel1:
         for y in rel2:
