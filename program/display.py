@@ -15,6 +15,7 @@ supply_data_folder = Path(my_path + "/data/Supply")
 schemas_path = Path(my_path + "/data")
 page_pool__index_folder = Path(my_path+"/index")
 tree_pic_folder = Path(my_path+"/treePic")
+query_output_folder = Path(my_path+"/queryOutput")
 
 
 def get_files(data_folder_path):
@@ -61,9 +62,9 @@ def displayTree(root_file_name):
     file_content = read_file_content(page_pool__index_folder,root_file_name)
     file_name_for_creation = ""
     if "s0" in str(file_content):
-        file_name_for_creation = "Supplier_sid.txt"
+        file_name_for_creation = supplier_string+"_sid.txt"
     else:
-        file_name_for_creation = "Supply_pid.txt"
+        file_name_for_creation = supply_string+"_pid.txt"
     if os.path.exists(str(tree_pic_folder) + "\\" + file_name_for_creation):
         os.remove(str(tree_pic_folder) + "\\" + file_name_for_creation)
     write_file_content(file_content,file_name_for_creation,root_file_name)
@@ -79,7 +80,14 @@ supply_list = []
 
 
 def displayTable(rel, fname):
-    data = []
+    if isinstance(rel,list):
+        file_content = read_file_content(schemas_path,rel)
+        f = open(str(query_output_folder) + "\\"+fname, "a")
+        f.write(json.dumps(file_content, ensure_ascii=False)+"\n\n\n")
+        f.close()
+
+
+
     if rel == supplier_string:
         file_names = get_files(supplier_data_folder)
         for i in file_names:

@@ -2,6 +2,8 @@ import ast
 import json
 import os
 from pathlib import Path
+import time
+
 
 supplier_string = "Suppliers"
 product_string = "Products"
@@ -14,6 +16,8 @@ product_data_folder = Path(my_path + "/data/Products")
 supply_data_folder = Path(my_path + "/data/Supply")
 schemas_path = Path(my_path + "/data")
 page_pool__index_folder = Path(my_path+"/index")
+tree_pic_folder = Path(my_path+"/treePic")
+
 
 sid_idx = 0
 sname_idx = 1
@@ -24,6 +28,8 @@ color_idx = 2
 supply_sid_idx = 0
 supply_pid_idx = 1
 supply_cost_idx = 2
+
+cost_of_search = 0
 
 
 def get_files(data_folder_path):
@@ -111,28 +117,117 @@ def readSchemas():
                 supply_cost_idx = int(i[3])
 
 
-def is_bplustree_existing(rel, att):
-    f = open(str(page_pool__index_folder) + "\\directory.txt", "r")
-    if rel in str(f.readlines()) and att in str(f.readlines()):
+def is_bplustree_existing(rel):
+    string_content = Path(str(page_pool__index_folder) + "\\directory.txt").read_text()
+    if rel in string_content:
         return True
     else:
         return False
 
 
+def find_array_to_return(nav_array, start_idx):
+    pages_array = []
+    for i in range(start_idx, len(nav_array)):
+        if ".txt" in nav_array[i]:
+            pages_array.append(nav_array[i])
+        else:
+            break
+    return pages_array
+
+
+def get_page_to_search(nav_array,compare_number,type,rel):
+    element = ""
+    global cost_of_search
+    cost_of_search += 1
+    if rel == supply_string:
+        element = "p"
+    else:
+        element = "s"
+    for idx,i in enumerate(nav_array):
+        if element in i and ".txt" not in i:
+            number_from_i = int(i.replace(element,""))
+            if compare_number < number_from_i:
+                return nav_array[idx-1]
+            if compare_number == number_from_i and type == "I":
+                return nav_array[idx+1]
+            if compare_number == number_from_i and type == "L" and rel == supply_string:
+                return find_array_to_return(nav_array,idx+1)
+    return nav_array[len(nav_array) -1]
+
+
+
+def search_in_tree(rel, att, op, val):
+    global cost_of_search
+    cost_of_search = 0
+    my_content = ""
+    compare_number = 0
+    if rel == supplier_string:
+        compare_number = int(val.replace("s", ""))
+        f = open(str(tree_pic_folder) + "\\" + supplier_string+"_sid.txt", "r")
+
+    if rel == supply_string:
+        compare_number = int(val.replace("p", ""))
+        f = open(str(tree_pic_folder) + "\\" + supply_string + "_pid.txt", "r")
+
+    file_lines = f.readlines()
+    page_to_search = ""
+    for i in file_lines:
+        node = i.strip().split(":")
+        if node[0] == page_to_search or page_to_search == "":
+            nav_array = ast.literal_eval(node[1])
+            nav = nav_array[len(nav_array)-1]
+            page_to_search = get_page_to_search(nav,compare_number,nav_array[0],rel)
+            if type(page_to_search) != str:
+                page_to_search = str(page_to_search)
+            if "page" in page_to_search:
+                page = page_to_search.split(".")
+                index = page[2]
+                page_name = page[0]+".txt"
+                if rel == supplier_string:
+                    my_content = read_file_content(supplier_data_folder,page_name)
+                    print(my_content[int(index)])
+                    print(
+                        "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                        cost_of_search + 1)  # for reading the record add 1
+
+                else:
+                    page_to_search  = ast.literal_eval(page_to_search)
+                    for i in page_to_search:
+                        page = i.split(".")
+                        index = page[2]
+                        page_name = page[0] + ".txt"
+                        my_content = read_file_content(supply_data_folder, page_name)
+                        print(my_content[int(index)])
+                    print(
+                        "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                        cost_of_search + len(page_to_search))  # for reading the records
+
+
+def write_to_file(file,content):
+    f = open(str(schemas_path) + "\\" + file, "w+")
+    f.write(json.dumps(content, ensure_ascii=False))
+    f.close()
+
 
 def select(rel, att, op, val):
-    is_tree_existing = is_bplustree_existing(rel,att)
-
-
-
+    global cost_of_search
+    cost_of_search = 0
+    is_tree_existing = is_bplustree_existing(rel)
     result = []
     readSchemas()
     if rel == supplier_string:
+        if is_tree_existing and att =="sid":
+            search_in_tree(rel, att, op, val)
+            return
         file_names = get_files(supplier_data_folder)
         # print("fileNames = ", file_names)
         my_result_array = []
         for i in file_names:
             h = read_file_content(supplier_data_folder, i)
+            cost_of_search += 1
+            if len(my_result_array) != 0 and att == "sid":
+                cost_of_search = cost_of_search -1
+                break
             if att == "sid":
                 compare_obj_idx = sid_idx
             elif att == "sname":
@@ -153,6 +248,10 @@ def select(rel, att, op, val):
         for i in file_names:
             # print("i = ", i)
             h = read_file_content(product_data_folder, i)
+            cost_of_search += 1
+            if len(my_result_array) != 0 and att == "pid":
+                cost_of_search = cost_of_search -1
+                break
             if att == "pid":
                 compare_obj_idx = pid_idx
             elif att == "pname":
@@ -166,12 +265,16 @@ def select(rel, att, op, val):
         result = my_result_array
 
     elif rel == supply_string:
+        if is_tree_existing and att =="pid":
+            search_in_tree(rel, att, op, val)
+            return
         file_names = get_files(supply_data_folder)
         # print("fileNames = ", file_names)
         my_result_array = []
         for i in file_names:
             # print("i = ", i)
             h = read_file_content(supply_data_folder, i)
+            cost_of_search += 1
             if att == "sid":
                 compare_obj_idx = supply_sid_idx
             elif att == "pid":
@@ -183,10 +286,15 @@ def select(rel, att, op, val):
                 compare_obj = j[compare_obj_idx]
                 check_record(op, val, j, compare_obj, my_result_array)
         result = my_result_array
+    file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
+    write_to_file(file_to_be_created,result)
+    print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
+    return file_to_be_created
 
-    for r in result:
-        print(r)
-
+    #
+    # for r in result:
+    #     print(r)
+    #
 
 def addToFinalResult(record, obj, my_result_list, indexes_to_add):
     for i in indexes_to_add:
@@ -251,9 +359,19 @@ def project(rel, *att_list):
             print(r)
 
 
+def join_using_tree(rel1, att1, rel2, att2):
+    if rel1 == supplier_string:
+        print("hey")
+
+
+
 def join(rel1, att1, rel2, att2):
     if att1 != att2:
         raise AttributeError('Sorry, attributes must be same')
+    file_to_be_created = rel1+"_"+rel2+"_"+str(int(time.time()))+".txt"
+    if is_bplustree_existing(rel1) or is_bplustree_existing(rel2):
+        join_using_tree(rel1,att1,rel2,att2)
+        return 
     supplier_file_names = get_files(supplier_data_folder)
     supplier_list = []
     for i in supplier_file_names:
@@ -330,23 +448,31 @@ def join(rel1, att1, rel2, att2):
                 myobj = []
                 try:
                     for idx in range(3):
-                        if idx != index_attr_1:
-                            myobj.append(x[idx])
+                        # if idx != index_attr_1:
+                        myobj.append(x[idx])
                         if idx != index_attr_2:
                             myobj.append(y[idx])
                     result.append(myobj)
                 except Exception as e:
                     print(e)
-
-    print(result)
+    # print(result)
+    write_to_file(file_to_be_created,result)
+    return file_to_be_created
 
 
 # under_22 = [rider for rider in people if rider[1] < 22]
 
 # select(product_string, "color", "=", "white")
-select(supplier_string, "sname", "=", "Carter")
+# select(supplier_string, "sname", "=", "Carter")
+
+# select(supplier_string, "sname", "=", "Carter")
+# select(supplier_string, "sid", "=", "s19")
+# select(supply_string, "pid", "=", "p26")
+
 
 # project(supplier_string, "sid", "sname")
 
+# search_in_tree(supplier_string,"sid","=","s23")
 
-# join(product_string, "pid", supply_string, "pid")
+
+join(product_string, "pid", supply_string, "pid")

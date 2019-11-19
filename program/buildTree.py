@@ -722,8 +722,8 @@ def build(rel, att, od):
 
     write_to_directory(rel,att,root_node.my_page)
     root_pages.append("my root page = "+root_node.my_page)
-    displayTree(root_node.my_page)
-    return final_tree
+    # displayTree(root_node.my_page)
+    return root_node.my_page
 
 
 
@@ -732,5 +732,5 @@ def build(rel, att, od):
 # build(supplier_string,"sid",2)
 # build(supply_string,"pid",2)
 
-for i in root_pages:
-    print(i)
+# for i in root_pages:
+#     print(i)
