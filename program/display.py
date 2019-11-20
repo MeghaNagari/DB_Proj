@@ -92,7 +92,7 @@ supply_list = []
 
 def write_query(string):
     f = open(str(query_output_folder) + "\\" + "queryResult.txt", "a")
-    f.write(json.dumps(string, ensure_ascii=False) + "\n\n\n")
+    f.write("\n\n"+json.dumps(string, ensure_ascii=False) + "\n\n")
     f.close()
     return
 
@@ -128,7 +128,10 @@ def displayTable(rel, fname):
     else:
         file_content = read_file_content(schemas_path, rel)
         f = open(str(query_output_folder) + "\\" + fname, "a")
-        f.write(json.dumps(file_content, ensure_ascii=False) + "\n\n\n")
+        for i in file_content:
+            f.write(json.dumps(i, ensure_ascii=False) + "\n")
+        # print(file_content)
+        # f.write(json.dumps(file_content, ensure_ascii=False) + "\n\n\n")
         f.close()
         return
 

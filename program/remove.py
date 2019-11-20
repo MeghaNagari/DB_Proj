@@ -95,9 +95,11 @@ def delete_entry_from_directory(rel, att):
 
 
 def delete_temp_file(file_to_open, page_pool__index_folder):
-    if os.path.exists(str(page_pool__index_folder) + "\\" + file_to_open):
-        os.remove(str(page_pool__index_folder) + "\\" + file_to_open)
-    pass
+    try:
+        if os.path.exists(str(page_pool__index_folder) + "\\" + file_to_open):
+            os.remove(str(page_pool__index_folder) + "\\" + file_to_open)
+    except:
+        pass
 
 
 def removeTree(rel, att):
@@ -116,7 +118,7 @@ def removeTree(rel, att):
     except Exception as e:
         print(e)
 
-removeTree(supplier_string, "sid")
+# removeTree(supplier_string, "sid")
 # removeTree("Supply","pid")
 
 
@@ -130,26 +132,30 @@ def delete_from_Schemas(rel):
     f.write(json.dumps(lines_to_write))
 
 
-
-
-
 def removeTable(rel):
-    if rel == supplier_string:
-        folder_path = supplier_data_folder
-        page_link_files = get_files(supplier_data_folder)
-    elif rel == product_string:
-        folder_path = product_data_folder
-        page_link_files = get_files(product_data_folder)
-    elif rel == supply_string:
-        folder_path = supply_data_folder
-        page_link_files = get_files(supply_data_folder)
-    for i in page_link_files:
-        delete_page_and_put_in_page_pool(i, schemas_path,folder_path)
-    delete_from_Schemas(rel)
+    if rel == supplier_string or rel == supply_string or rel == product_string:
+        if rel == supplier_string:
+            folder_path = supplier_data_folder
+            page_link_files = get_files(supplier_data_folder)
+        elif rel == product_string:
+            folder_path = product_data_folder
+            page_link_files = get_files(product_data_folder)
+        elif rel == supply_string:
+            folder_path = supply_data_folder
+            page_link_files = get_files(supply_data_folder)
+        for i in page_link_files:
+            delete_page_and_put_in_page_pool(i, schemas_path,folder_path)
+        delete_from_Schemas(rel)
+    else:
+        try:
+            if os.path.exists(str(schemas_path) + "\\" + rel):
+                os.remove(str(schemas_path) + "\\" + rel)
+        except:
+            pass
 
 
 
-# removeTable(supplier_string)
+removeTable("Suppliers_1574264537.txt")
 
 
 # removeTree(supplier_string,"sid")
