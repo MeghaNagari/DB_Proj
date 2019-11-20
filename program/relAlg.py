@@ -155,19 +155,23 @@ def get_page_to_search(nav_array,compare_number,type,rel):
     return nav_array[len(nav_array) -1]
 
 
-
-def search_in_tree(rel, att, op, val):
+def search_in_tree(rel, att, op, val,join_array):
+    file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
     global cost_of_search
     cost_of_search = 0
     my_content = ""
+    schema = []
+    result = []
     compare_number = 0
     if rel == supplier_string:
         compare_number = int(val.replace("s", ""))
-        f = open(str(tree_pic_folder) + "\\" + supplier_string+"_sid.txt", "r")
+        f = open(str(page_pool__index_folder) + "\\" + supplier_string+"Temp.txt", "r")
+        schema = ["sid","sname","address"]
 
     if rel == supply_string:
         compare_number = int(val.replace("p", ""))
-        f = open(str(tree_pic_folder) + "\\" + supply_string + "_pid.txt", "r")
+        f = open(str(tree_pic_folder) + "\\" + supply_string + "Temp.txt", "r")
+        schema = ["sid","pid","cost"]
 
     file_lines = f.readlines()
     page_to_search = ""
@@ -185,22 +189,38 @@ def search_in_tree(rel, att, op, val):
                 page_name = page[0]+".txt"
                 if rel == supplier_string:
                     my_content = read_file_content(supplier_data_folder,page_name)
-                    print(my_content[int(index)])
+                    if join_array != None:
+                        join_array.append(my_content[int(index)])
+                    # print(my_content[int(index)])
+                    result.append(schema)
+                    result.append(my_content[int(index)])
+                    write_to_file(file_to_be_created,result)
                     print(
                         "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
                         cost_of_search + 1)  # for reading the record add 1
 
                 else:
-                    page_to_search  = ast.literal_eval(page_to_search)
+                    try:
+                        page_to_search  = ast.literal_eval(page_to_search)
+                    except:
+                        temp_list = []
+                        temp_list.append(page_to_search)
+                        page_to_search = temp_list
                     for i in page_to_search:
                         page = i.split(".")
                         index = page[2]
                         page_name = page[0] + ".txt"
                         my_content = read_file_content(supply_data_folder, page_name)
-                        print(my_content[int(index)])
+                        if join_array != None:
+                            join_array.append(my_content[int(index)])
+                        # print(my_content[int(index)])
+                        result.append(schema)
+                        result.append(my_content[int(index)])
+                        write_to_file(file_to_be_created, result)
                     print(
                         "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
                         cost_of_search + len(page_to_search))  # for reading the records
+    return file_to_be_created
 
 
 def write_to_file(file,content):
@@ -212,13 +232,16 @@ def write_to_file(file,content):
 def select(rel, att, op, val):
     global cost_of_search
     cost_of_search = 0
+    result_schema = []
     is_tree_existing = is_bplustree_existing(rel)
     result = []
     readSchemas()
     if rel == supplier_string:
+        result_schema = ["sid","sname","address"]
         if is_tree_existing and att =="sid":
-            search_in_tree(rel, att, op, val)
-            return
+            file = search_in_tree(rel, att, op, val,None)
+            print(file)
+            return file
         file_names = get_files(supplier_data_folder)
         # print("fileNames = ", file_names)
         my_result_array = []
@@ -242,6 +265,7 @@ def select(rel, att, op, val):
         result = my_result_array
 
     elif rel == product_string:
+        result_schema = ["pid","pname","color"]
         file_names = get_files(product_data_folder)
         # print("fileNames = ", file_names)
         my_result_array = []
@@ -265,9 +289,11 @@ def select(rel, att, op, val):
         result = my_result_array
 
     elif rel == supply_string:
+        result_schema = ["sid","pid","cost"]
         if is_tree_existing and att =="pid":
-            search_in_tree(rel, att, op, val)
-            return
+            file = search_in_tree(rel, att, op, val,None)
+            print(file)
+            return file
         file_names = get_files(supply_data_folder)
         # print("fileNames = ", file_names)
         my_result_array = []
@@ -287,8 +313,11 @@ def select(rel, att, op, val):
                 check_record(op, val, j, compare_obj, my_result_array)
         result = my_result_array
     file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
-    write_to_file(file_to_be_created,result)
-    print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
+    result_with_schema = []
+    result_with_schema.append(result_schema)
+    result_with_schema.append(result)
+    write_to_file(file_to_be_created,result_with_schema)
+    # print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
     return file_to_be_created
 
     #
@@ -303,6 +332,7 @@ def addToFinalResult(record, obj, my_result_list, indexes_to_add):
 
 
 def project(rel, *att_list):
+    file_to_be_created = rel+str(int(time.time())) + ".txt"
     if rel == supplier_string:
         file_names = get_files(supplier_data_folder)
         my_result_list = []
@@ -354,14 +384,22 @@ def project(rel, *att_list):
             for j in h:
                 obj = []
                 addToFinalResult(j, obj, my_result_list, indexes_to_add)
+    else:
+        file_content = read_file_content(schemas_path,rel)
+        att_list = att_list
+        print()
 
-    for r in my_result_list:
-            print(r)
+    # for r in my_result_list:
+    #         print(r)
+    write_to_file(file_to_be_created,my_result_list)
+    return file_to_be_created
 
 
-def join_using_tree(rel1, att1, rel2, att2):
+def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
     p_key = None
     search_in_tree_rel = None
+    join_array = []
+    final_array =  []
     is_tree_existing_rel1 = is_bplustree_existing(rel1)
     if is_tree_existing_rel1:
         search_in_tree_rel = rel1
@@ -373,25 +411,37 @@ def join_using_tree(rel1, att1, rel2, att2):
     if att1 == "sid" or att2 == "sid":
         p_key = "sid"
     if rel1 == supplier_string or rel2 == supplier_string:
-        supplier_file_names = get_files(supplier_data_folder)
-        supplier_list = []
-        for i in supplier_file_names:
-            h = read_file_content(supplier_data_folder, i)
-            for j in h:
-                supplier_list.append(j)
-                search_in_tree(supplier_string,p_key,"=",j[0])
-                print("df")
-    if rel1 == supply_string or rel2 == supply_string:
-        supplier_file_names = get_files(supply_data_folder)
-        supply_list = []
-        for i in supplier_file_names:
+        supply_file_names = get_files(supply_data_folder)
+        for i in supply_file_names:
             h = read_file_content(supply_data_folder, i)
             for j in h:
-                supply_list.append(j)
-                search_in_tree(supply_string,p_key,"=",j[1])
-                print("df")
-
-
+                join_array = []
+                search_in_tree(supplier_string, p_key, "=", j[0], join_array)
+                if len(join_array) > 0:
+                    for m in join_array:
+                        final_array.append(list(dict.fromkeys(j + m)))
+        # print("done joining")
+    final_array_with_schema = []
+    final_array_with_schema.append(["sid","pid","cost","sname","address"])
+    final_array_with_schema.append(final_array)
+    if rel1 == product_string or rel2 == product_string:
+        product_file_names = get_files(product_data_folder)
+        product_list = []
+        for i in product_file_names:
+            h = read_file_content(product_data_folder, i)
+            for j in h:
+                product_list.append(j)
+                join_array = []
+                search_in_tree(supply_string,p_key,"=",j[0],join_array)
+                if len(join_array) > 0:
+                    for m in join_array:
+                        final_array.append(list(dict.fromkeys(j+m)))
+        # print("done with joining")
+    final_array_with_schema = []
+    final_array_with_schema.append(["pid", "pname", "color", "sid", "cost"])
+    final_array_with_schema.append(final_array)
+    write_to_file(file_to_be_created, final_array_with_schema)
+    return file_to_be_created
 
 
 
@@ -400,9 +450,9 @@ def join(rel1, att1, rel2, att2):
     if att1 != att2:
         raise AttributeError('Sorry, attributes must be same')
     file_to_be_created = rel1+"_"+rel2+"_"+str(int(time.time()))+".txt"
-    # if is_bplustree_existing(rel1) or is_bplustree_existing(rel2):
-    #     join_using_tree(rel1, att1, rel2, att2)
-    #     return
+    if is_bplustree_existing(rel1) or is_bplustree_existing(rel2):
+        join_using_tree(rel1, att1, rel2, att2,file_to_be_created)
+        return
 
     supplier_file_names = get_files(supplier_data_folder)
     supplier_list = []
@@ -497,8 +547,8 @@ def join(rel1, att1, rel2, att2):
 # select(supplier_string, "sname", "=", "Carter")
 
 # select(supplier_string, "sname", "=", "Carter")
-# select(supplier_string, "sid", "=", "s19")
-# select(supply_string, "pid", "=", "p26")
+select(supplier_string, "sid", "=", "s19")
+# select(supply_string, "pid", "=", "p22")
 
 
 # project(supplier_string, "sid", "sname")
@@ -506,4 +556,5 @@ def join(rel1, att1, rel2, att2):
 # search_in_tree(supplier_string,"sid","=","s23")
 
 
-join(product_string, "pid", supply_string, "pid")
+# join(product_string, "pid", supply_string, "pid")
+# join(supplier_string, "sid", supply_string, "sid")

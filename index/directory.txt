@@ -1,1 +1,1 @@
-(Supply,pid,pg32.txt)
+(Suppliers,sid,pg16.txt)

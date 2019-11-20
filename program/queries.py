@@ -1,10 +1,6 @@
-from program.buildTree import build
 from program.relAlg import select
-from program.display import displayTree
-from program.display import displayTable
-from program.relAlg import read_file_content
-from program.relAlg import schemas_path
-from program.relAlg import join
+from program.relAlg import project
+
 
 supplier_string = "Suppliers"
 product_string = "Products"
@@ -14,7 +10,8 @@ pid_attr = "pid"
 query_result_txt = "queryResult.txt"
 
 result = select(supplier_string,sid_attr,"=","s23")
-displayTable(result,query_result_txt)
+print(result)
+project(result,"sname")
 #
 # from program.remove import removeTree
 #
@@ -31,12 +28,3 @@ displayTable(result,query_result_txt)
 
 
 
-
-
-
-
-
-
-
-
-print(bt)

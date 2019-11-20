@@ -40,8 +40,8 @@ def read_file_content(data_folder, i):
     return h
 
 
-def write_file_content(file_content,root_page,my_page):
-    f = open(str(tree_pic_folder) + "\\"+root_page, "a")
+def write_file_content(file_content,root_page,my_page,folder):
+    f = open(str(folder) + "\\"+root_page, "a")
     if file_content[0] == "I"and file_content[1] != "Nil":
         f.write("\t"+my_page + ":"+json.dumps(file_content)+"\n")
     elif file_content[0] == "L":
@@ -51,12 +51,23 @@ def write_file_content(file_content,root_page,my_page):
     f.close()
 
 
-def read_page_write_content(page_to_read,root_file_name):
+def read_page_write_content(page_to_read,root_file_name,folder):
     file_content = read_file_content(page_pool__index_folder,page_to_read)
-    write_file_content(file_content,root_file_name,page_to_read)
+    write_file_content(file_content,root_file_name,page_to_read,folder)
     for i in file_content[2]:
         if ".txt" in i:
-            read_page_write_content(i, root_file_name)
+            read_page_write_content(i, root_file_name,folder)
+
+def create_test_tree(rel, root_file_name):
+    file_content = read_file_content(page_pool__index_folder, root_file_name)
+    file_name_for_creation = rel + "Temp.txt"
+    if os.path.exists(str(tree_pic_folder) + "\\" + file_name_for_creation):
+        os.remove(str(tree_pic_folder) + "\\" + file_name_for_creation)
+    write_file_content(file_content, file_name_for_creation, root_file_name,page_pool__index_folder)
+    for i in file_content[2]:
+        if ".txt" in i:
+            read_page_write_content(i, file_name_for_creation,page_pool__index_folder)
+    print(file_name_for_creation)
 
 def displayTree(root_file_name):
     file_content = read_file_content(page_pool__index_folder,root_file_name)
@@ -67,10 +78,10 @@ def displayTree(root_file_name):
         file_name_for_creation = supply_string+"_pid.txt"
     if os.path.exists(str(tree_pic_folder) + "\\" + file_name_for_creation):
         os.remove(str(tree_pic_folder) + "\\" + file_name_for_creation)
-    write_file_content(file_content,file_name_for_creation,root_file_name)
+    write_file_content(file_content,file_name_for_creation,root_file_name,tree_pic_folder)
     for i in file_content[2]:
         if ".txt" in i:
-            read_page_write_content(i,file_name_for_creation)
+            read_page_write_content(i,file_name_for_creation,tree_pic_folder)
     print(file_name_for_creation)
 
 
@@ -119,5 +130,5 @@ def displayTable(rel, fname):
 
 
 
-# displayTree("pg00.txt")
+displayTree("pg00.txt")
 # displayTable(supply_string,"Supply.txt")

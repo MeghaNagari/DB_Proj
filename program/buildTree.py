@@ -3,7 +3,6 @@ from math import ceil, floor
 import json
 import os
 from pathlib import Path
-from program.display import displayTree
 
 supplier_string = "Suppliers"
 product_string = "Products"
@@ -332,8 +331,8 @@ class BPlusTree(object):
             max_height = height
             if not isinstance(node, LeafNode):
                 queue += self.intersperse(node.values, height + 1)
-            print(height, '|'.join(map(str, node.keys)), '\t', node.uid, '\t parent -> ',
-                  node.parent.uid if node.parent else None)
+            # print(height, '|'.join(map(str, node.keys)), '\t', node.uid, '\t parent -> ',
+            #       node.parent.uid if node.parent else None)
 
     def get_leftmost_leaf(self):
         if not self.root:
@@ -612,7 +611,24 @@ def get_right_sibling_new(compare_element):
 
 root_pages = []
 
+def is_bplustree_existing(rel):
+    string_content = Path(str(page_pool__index_folder) + "\\directory.txt").read_text()
+    if rel in string_content:
+        return True
+    else:
+        return False
+
+
+def create_temp_tree(rel,my_page):
+    from program.display import create_test_tree
+    create_test_tree(rel,my_page)
+
+
 def build(rel, att, od):
+    if is_bplustree_existing(rel):
+        print("Sorry, tree already exists")
+        return
+
     global tree_created_on
     if rel == supplier_string:
         tree_created_on = supplier_string
@@ -632,15 +648,6 @@ def build(rel, att, od):
         for i in range(1, len(supplier_list) + 1):
             bt.insert(i, supplier_list[i - 1][attr])
         bt.show_bfs()
-
-    # elif rel == product_string:
-    #     tree_created_on = product_string
-    #     file_names = get_files(product_data_folder)
-    #     for i in file_names:
-    #         h = read_file_content(product_data_folder, i)
-    #         for j in h:
-    #             product_list.append(j)
-
 
     elif rel == supply_string:
         tree_created_on = supply_string
@@ -722,14 +729,14 @@ def build(rel, att, od):
 
     write_to_directory(rel,att,root_node.my_page)
     root_pages.append("my root page = "+root_node.my_page)
-    # displayTree(root_node.my_page)
+    create_temp_tree(rel,root_node.my_page)
     return root_node.my_page
 
 
 
 
 
-# build(supplier_string,"sid",2)
+build(supplier_string,"sid",2)
 # build(supply_string,"pid",2)
 
 # for i in root_pages:

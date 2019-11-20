@@ -84,6 +84,7 @@ def read_page_and_get_indexes(page_folder,page_name):
 def delete_entry_from_directory(rel, att):
     f = open(str(page_pool__index_folder) + "\\directory.txt","r+")
     lines = f.readlines();
+    f = open(str(page_pool__index_folder) + "\\directory.txt","w+")
     lines_to_write = []
     for i in lines:
         if rel not in str(i) or att not in str(i):
@@ -93,11 +94,16 @@ def delete_entry_from_directory(rel, att):
     f.close()
 
 
+def delete_temp_file(file_to_open, page_pool__index_folder):
+    if os.path.exists(str(page_pool__index_folder) + "\\" + file_to_open):
+        os.remove(str(page_pool__index_folder) + "\\" + file_to_open)
+    pass
+
 
 def removeTree(rel, att):
-    file_to_open = rel+"_"+att+".txt"
+    file_to_open = rel+"Temp.txt"
     try:
-        file_content =  open(str(tree_pic_folder) + "\\"+file_to_open, "r")
+        file_content =  open(str(page_pool__index_folder) + "\\"+file_to_open, "r")
         lines = file_content.readlines()
         for i in lines:
             file_array = i.strip().split(":")
@@ -106,10 +112,11 @@ def removeTree(rel, att):
                 delete_page_and_put_in_page_pool(file_array[0],page_pool__index_folder,None)
         print("deleted all pages and put back to page pool")
         delete_entry_from_directory(rel,att)
+        delete_temp_file(file_to_open,page_pool__index_folder)
     except Exception as e:
         print(e)
 
-# removeTree("Supplier", "sid")
+removeTree(supplier_string, "sid")
 # removeTree("Supply","pid")
 
 
