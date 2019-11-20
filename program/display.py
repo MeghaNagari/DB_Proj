@@ -67,7 +67,7 @@ def create_test_tree(rel, root_file_name):
     for i in file_content[2]:
         if ".txt" in i:
             read_page_write_content(i, file_name_for_creation,page_pool__index_folder)
-    print(file_name_for_creation)
+    # print(file_name_for_creation)
 
 def displayTree(root_file_name):
     file_content = read_file_content(page_pool__index_folder,root_file_name)
@@ -90,14 +90,15 @@ product_list = []
 supply_list = []
 
 
+def write_query(string):
+    f = open(str(query_output_folder) + "\\" + "queryResult.txt", "a")
+    f.write(json.dumps(string, ensure_ascii=False) + "\n\n\n")
+    f.close()
+    return
+
+
+
 def displayTable(rel, fname):
-    if isinstance(rel,list):
-        file_content = read_file_content(schemas_path,rel)
-        f = open(str(query_output_folder) + "\\"+fname, "a")
-        f.write(json.dumps(file_content, ensure_ascii=False)+"\n\n\n")
-        f.close()
-
-
 
     if rel == supplier_string:
         file_names = get_files(supplier_data_folder)
@@ -123,12 +124,19 @@ def displayTable(rel, fname):
             for idx, j in enumerate(h):
                 supply_list.append(j)
         data = supply_list
-        f = open(fname, "w+")
-        f.write(json.dumps(data, ensure_ascii=False))
+
+    else:
+        file_content = read_file_content(schemas_path, rel)
+        f = open(str(query_output_folder) + "\\" + fname, "a")
+        f.write(json.dumps(file_content, ensure_ascii=False) + "\n\n\n")
         f.close()
+        return
+
+    # f = open(fname, "w+")
+    # f.write(json.dumps(data, ensure_ascii=False))
+    # f.close()
 
 
 
-
-displayTree("pg00.txt")
+# displayTree("pg00.txt")
 # displayTable(supply_string,"Supply.txt")

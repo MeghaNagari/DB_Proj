@@ -1,0 +1,24 @@
+"Find the name for the supplier ‘s23’ when a B+_tree exists on Suppliers.sid."
+
+
+[["Walsh"]]
+
+
+"Find the name for the supplier ‘s23’ when a B+_tree does not exists on Suppliers.sid."
+
+
+[["Walsh"]]
+
+
+"Find the name for the supplier ‘s23’ when a B+_tree does not exists on Suppliers.sid."
+
+
+[["Walsh"]]
+
+
+"Find the address of the suppliers who supplied ‘p15’."
+
+
+[]
+
+

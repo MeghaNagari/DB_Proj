@@ -149,7 +149,9 @@ def removeTable(rel):
 
 
 
-removeTable(supplier_string)
+# removeTable(supplier_string)
 
+
+# removeTree(supplier_string,"sid")
 
 

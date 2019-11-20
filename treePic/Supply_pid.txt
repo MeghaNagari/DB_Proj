@@ -1,1 +1,0 @@
-		pg00.txt:["L", "pg13.txt", "pg01.txt", "Nil", ["s23", "page11.txt.0", "s24", "page11.txt.1", "s25", "page12.txt.0", "s26", "page12.txt.1"]]
