@@ -268,7 +268,7 @@ def select(rel, att, op, val):
             file = search_in_tree(rel, att, op, val,None)
             print(
                 "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                cost_of_search+1)
+                cost_of_search+1+" pages")
             print(file)
             return file
         file_names = get_files(supplier_data_folder)
@@ -323,7 +323,7 @@ def select(rel, att, op, val):
             file = search_in_tree(rel, att, op, val,None)
             print(
                 "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                cost_of_search+1)
+                str(cost_of_search+1)+" pages")
             print(file)
             return file
         file_names = get_files(supply_data_folder)
@@ -366,7 +366,7 @@ def select(rel, att, op, val):
         file_to_be_created = "test_"+str(int(time.time())) + ".txt"
     write_to_file(file_to_be_created,result,result_schema)
     print(file_to_be_created)
-    print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
+    print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", str(cost_of_search)+" pages")
     return file_to_be_created
 
     #
@@ -516,11 +516,12 @@ def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
                         final_array.append(list(dict.fromkeys(j+m)))
         # print("done with joining")
     final_cost = cost + join_cost
-    print("cost of joining with B+ tree on "+search_in_tree_rel+ " = ",cost+join_cost)
+    print("cost of joining with B+ tree on "+search_in_tree_rel+ " = ",str(cost+join_cost)+" pages")
     try:
         write_to_file(file_to_be_created, final_array)
     except Exception as e:
-        print("join exception = "+e)
+        # print("join exception = "+e)
+        pass
 
     return file_to_be_created
 
@@ -702,7 +703,8 @@ def join(rel1, att1, rel2, att2):
                                 final_schema.append(schema_2[idx])
                     result.append(myobj)
                 except Exception as e:
-                    print(e)
+                    # print(e)
+                    pass
     if not (is_bplustree_existing(rel1_string) or is_bplustree_existing(rel2_string)) and not err:
         print("cost of joining without B tree on "+rel1_string+" and "+rel2_string+" = ", int(int(cost_rel1)/2 +int(cost_rel2)/4))
     # if is_bplustree_existing(rel1_string) and err:
