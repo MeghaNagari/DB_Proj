@@ -242,6 +242,7 @@ def get_result_for_comparison(op, file_content, att,val,cost):
     result_array = []
     if len(file_content)>0:
         for i in file_content:
+            cost += 1
             record = i
             for j in record:
                 if att in str(j):
@@ -353,14 +354,14 @@ def select(rel, att, op, val):
                     cost += 1
                     if val in str(i):
                         my_result_list.append(i)
-            cost_of_search = int(cost/2)
+        cost_of_search = int(cost/2)
             # print("cost of "+rel+" "+att+" "+op+" "+val+" = ",int(cost/2))
         result = my_result_list
     file_to_be_created = ""
     if ".txt" not in rel:
-        file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
-    else:
         file_to_be_created = rel+str(int(time.time())) + ".txt"
+    else:
+        file_to_be_created = "test"+str(int(time.time()))
     write_to_file(file_to_be_created,result,result_schema)
     print(file_to_be_created)
     print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
@@ -453,8 +454,7 @@ def project(rel, *att_list):
     else:
         file_content = read_file_content(schemas_path,rel)
         result_array = get_result_array(file_content,att_list)
-
-    my_result_list = result_array
+        my_result_list = result_array
 
     # for r in my_result_list:
     #         print(r)
