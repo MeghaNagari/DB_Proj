@@ -155,7 +155,7 @@ def get_page_to_search(nav_array,compare_number,type,rel):
     return nav_array[len(nav_array) -1]
 
 
-def search_in_tree(rel, att, op, val,join_array):
+def search_in_tree(rel, att, op, val,join_array,cost):
     file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
     global cost_of_search
     cost_of_search = 0
@@ -194,9 +194,10 @@ def search_in_tree(rel, att, op, val,join_array):
                     # print(my_content[int(index)])
                     result.append(my_content[int(index)])
                     write_to_file(file_to_be_created,result,schema)
-                    print(
-                        "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                        cost_of_search + 1)  # for reading the record add 1
+                    cost = cost_of_search
+                    # print(
+                    #     "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                    #     cost_of_search + 1)  # for reading the record add 1
 
                 else:
                     try:
@@ -215,9 +216,10 @@ def search_in_tree(rel, att, op, val,join_array):
                         # print(my_content[int(index)])
                         result.append(my_content[int(index)])
                         write_to_file(file_to_be_created, result,schema)
-                    print(
-                        "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                        cost_of_search + len(page_to_search))  # for reading the records
+                        cost = cost_of_search
+                    # print(
+                    #     "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                    #     cost_of_search + len(page_to_search))  # for reading the records
     return file_to_be_created
 
 
@@ -229,14 +231,14 @@ def write_to_file(file,content,schema_array):
                         i[idx] = i[idx]+":"+j
                    except TypeError:
                        i[idx] = str(i[idx]) + ":" + j
-                       print()
+                       # print()
 
     f = open(str(schemas_path) + "\\" + file, "w+")
     f.write(json.dumps(content, ensure_ascii=False))
     f.close()
 
 
-def get_result_for_comparison(op, file_content, att,val):
+def get_result_for_comparison(op, file_content, att,val,cost):
     result_array = []
     if len(file_content)>0:
         for i in file_content:
@@ -245,7 +247,6 @@ def get_result_for_comparison(op, file_content, att,val):
                 if att in str(j):
                     cost_to_compare = j.split(":")
                     check_record(op,val,i,cost_to_compare[0],result_array)
-    print("DF")
     return result_array
 
 
@@ -259,7 +260,11 @@ def select(rel, att, op, val):
     if rel == supplier_string:
         result_schema = ["sid","sname","address"]
         if is_tree_existing and att =="sid" and op == "=":
-            file = search_in_tree(rel, att, op, val,None)
+            cost_of_search = 0
+            file = search_in_tree(rel, att, op, val,None,cost_of_search)
+            print(
+                "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                cost_of_search)
             print(file)
             return file
         file_names = get_files(supplier_data_folder)
@@ -311,7 +316,11 @@ def select(rel, att, op, val):
     elif rel == supply_string:
         result_schema = ["sid","pid","cost"]
         if is_tree_existing and att =="pid":
-            file = search_in_tree(rel, att, op, val,None)
+            cost_of_search = 0
+            file = search_in_tree(rel, att, op, val,None,cost_of_search)
+            print(
+                "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                cost_of_search)
             print(file)
             return file
         file_names = get_files(supply_data_folder)
@@ -335,17 +344,23 @@ def select(rel, att, op, val):
     else:
         file_content = read_file_content(schemas_path, rel)
         my_result_list = []
+        cost = 0
         if op != "=":
-            my_result_list = get_result_for_comparison(op,file_content,att,val)
+            my_result_list = get_result_for_comparison(op,file_content,att,val,cost)
         else:
             if len(file_content) > 0:
                 for i in file_content:
+                    cost += 1
                     if val in str(i):
                         my_result_list.append(i)
+            cost_of_search = int(cost/2)
+            # print("cost of "+rel+" "+att+" "+op+" "+val+" = ",int(cost/2))
         result = my_result_list
-
-
-    file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
+    file_to_be_created = ""
+    if ".txt" not in rel:
+        file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
+    else:
+        file_to_be_created = rel+str(int(time.time())) + ".txt"
     write_to_file(file_to_be_created,result,result_schema)
     print(file_to_be_created)
     print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
@@ -379,6 +394,7 @@ def get_result_array(file_content, att_list):
     return final_array
 
 def project(rel, *att_list):
+    result_array = []
     if ".txt" not in rel:
         file_to_be_created = rel+str(int(time.time())) + ".txt"
     else:
@@ -437,9 +453,8 @@ def project(rel, *att_list):
     else:
         file_content = read_file_content(schemas_path,rel)
         result_array = get_result_array(file_content,att_list)
-        final_result = result_array
 
-    my_result_list = final_result
+    my_result_list = result_array
 
     # for r in my_result_list:
     #         print(r)
@@ -449,6 +464,7 @@ def project(rel, *att_list):
 
 
 def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
+    cost = 0
     p_key = None
     search_in_tree_rel = None
     join_array = []
@@ -465,20 +481,22 @@ def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
         p_key = "sid"
     if rel1 == supplier_string or rel2 == supplier_string:
         supply_file_names = get_files(supply_data_folder)
+        cost = 0
         for i in supply_file_names:
             h = read_file_content(supply_data_folder, i)
+            cost += 1
             for j in h:
                 join_array = []
                 search_in_tree(supplier_string, p_key, "=", j[0], join_array)
                 if len(join_array) > 0:
                     for m in join_array:
                         final_array.append(list(dict.fromkeys(j + m)))
-        # print("done joining")
     if rel1 == product_string or rel2 == product_string:
         product_file_names = get_files(product_data_folder)
         product_list = []
         for i in product_file_names:
             h = read_file_content(product_data_folder, i)
+            cost += 1
             for j in h:
                 product_list.append(j)
                 join_array = []
@@ -487,17 +505,15 @@ def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
                     for m in join_array:
                         final_array.append(list(dict.fromkeys(j+m)))
         # print("done with joining")
+    print("cost of joining with B+ tree on "+rel1 +" and "+rel2+" = ",cost)
     write_to_file(file_to_be_created, final_array)
     return file_to_be_created
 
-def unique(sequence):
-    seen = ()
-    return [x for x in sequence if not (x in seen or seen.add(x))]
 
-
-def join_all_with_sid(sid, file_content,record):
+def join_all_with_sid(sid, file_content,record,cost):
     result = []
     for j in file_content:
+        cost += 1
         if sid in str(j):
             j.append(record[1]+":"+"sname")
             j.append(record[2]+":"+"address")
@@ -507,6 +523,7 @@ def join_all_with_sid(sid, file_content,record):
 
 
 def join_uncommon_relations(rel1, att1, rel2, att2):
+    cost = 0
     file_content = []
     supplier_file_names = get_files(supplier_data_folder)
     supplier_list = []
@@ -520,14 +537,19 @@ def join_uncommon_relations(rel1, att1, rel2, att2):
     if ".txt" in rel2:
         file_content = read_file_content(schemas_path,rel1)
     final_res = []
+    cost = 0
     for j in supplier_list:
-        res_array = join_all_with_sid(j[0],file_content,j)
+        cost += 1
+        res_array = join_all_with_sid(j[0],file_content,j,cost)
         for m in res_array:
             final_res.append(m)
+    print("cost for "+rel1+" "+rel2, int(cost/2))
     return final_res
 
 
 def join(rel1, att1, rel2, att2):
+    rel1_string = rel1
+    rel2_string = rel2
     if att1 != att2:
         raise AttributeError('Sorry, attributes must be same')
     file_to_be_created = rel1+"_"+rel2+"_"+str(int(time.time()))+".txt"
@@ -539,6 +561,7 @@ def join(rel1, att1, rel2, att2):
     except:
         pass
     result = []
+    cost = 0
     if ".txt" in rel1 or ".txt" in rel2:
         result = join_uncommon_relations(rel1,att1,rel2,att2)
         write_to_file(file_to_be_created, result, None)
@@ -636,7 +659,9 @@ def join(rel1, att1, rel2, att2):
     result = []
     final_schema = []
     for x in rel1:
+        cost += 1
         for y in rel2:
+            cost += 1
             if x[index_attr_1] == y[index_attr_2]:
                 myobj = []
                 try:
@@ -652,7 +677,7 @@ def join(rel1, att1, rel2, att2):
                     result.append(myobj)
                 except Exception as e:
                     print(e)
-    # print(result)
+    print("cost of joining without B tree on"+rel1_string+" and "+rel2_string+" = ", int(cost/2))
     write_to_file(file_to_be_created,result,final_schema)
     return file_to_be_created
 

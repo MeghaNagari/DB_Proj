@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 from program.relAlg import select, join
 from program.relAlg import project
 from program.display import displayTable, write_query
@@ -10,7 +13,7 @@ pid_attr = "pid"
 query_result_txt = "queryResult.txt"
 
 
-#query-1
+# query-1
 
 result = select(supplier_string,sid_attr,"=","s23")
 print(result)
@@ -31,7 +34,7 @@ displayTable(file,query_result_txt)
 
 
 #query-3
-
+#
 result = join(supplier_string,"sid",supply_string,"sid")
 print(result)
 file = select(result,"pid","=","p15")
@@ -40,8 +43,8 @@ res = project(file,"address")
 write_query("Query c - Find the address of the suppliers who supplied ‘p15’.")
 displayTable(res,query_result_txt)
 
-
-#query-4
+#
+# #query-4
 #
 result = join(supplier_string,"sid",supply_string,"sid")
 print(result)
@@ -52,10 +55,10 @@ print(file_2)
 res = project(file_2,"cost")
 write_query("Query d - What is the cost of ‘p20’ supplied by ‘kiddie’")
 displayTable(res,query_result_txt)
-
-
-#query - 5
-
+#
+#
+# #query - 5
+#
 result = join(product_string,"pid",supply_string,"pid")
 print(result)
 file = select(result,"cost",">=","47")
