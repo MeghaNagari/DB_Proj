@@ -275,11 +275,10 @@ def select(rel, att, op, val):
         # print("fileNames = ", file_names)
         my_result_array = []
         for i in file_names:
+            if len(my_result_array) != 0 and att == "sid"  and op == "=":
+                break
             h = read_file_content(supplier_data_folder, i)
             cost_of_search += 1
-            if len(my_result_array) != 0 and att == "sid"  and op == "=":
-                cost_of_search = cost_of_search -1
-                break
             if att == "sid":
                 compare_obj_idx = sid_idx
             elif att == "sname":

@@ -131,6 +131,6 @@ def displayTable(rel, fname):
 
 
 
-# displayTree("pg16.txt")
-# displayTree("pg17.txt")
-# displayTable(supply_string,"Supply.txt")
+# # displayTree("pg16.txt")
+# displayTree("pg00.txt")
+# # displayTable(supply_string,"Supply.txt")
