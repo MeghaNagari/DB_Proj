@@ -1,1 +1,0 @@
-["L", "pg20.txt", "pg28.txt", "pg30.txt", ["p21", "page13.txt.0", "page38.txt.1", "p23", "page00.txt.1", "page14.txt.0", "page15.txt.0", "page29.txt.0", "p24", "page07.txt.1", "page18.txt.0", "page37.txt.1", "page53.txt.0", "p25", "page13.txt.1", "page37.txt.0"]]

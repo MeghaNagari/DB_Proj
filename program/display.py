@@ -92,7 +92,7 @@ supply_list = []
 
 def write_query(string):
     f = open(str(query_output_folder) + "\\" + "queryResult.txt", "a")
-    f.write("\n\n"+json.dumps(string, ensure_ascii=False) + "\n\n")
+    f.write("\n"+json.dumps(string, ensure_ascii=False) + "\n\n")
     f.close()
     return
 
@@ -127,7 +127,7 @@ def displayTable(rel, fname):
 
     else:
         file_content = read_file_content(schemas_path, rel)
-        f = open(str(query_output_folder) + "\\" + fname, "a")
+        f = open(str(query_output_folder) + "\\" + fname, "a+")
         for i in file_content:
             f.write(json.dumps(i, ensure_ascii=False) + "\n")
         # print(file_content)
@@ -141,5 +141,6 @@ def displayTable(rel, fname):
 
 
 
-# displayTree("pg00.txt")
+displayTree("pg16.txt")
+# displayTree("pg17.txt")
 # displayTable(supply_string,"Supply.txt")

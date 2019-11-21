@@ -112,11 +112,12 @@ def removeTree(rel, att):
             page_to_del = file_array[0]
             if page_to_del != "":
                 delete_page_and_put_in_page_pool(file_array[0],page_pool__index_folder,None)
-        print("deleted all pages and put back to page pool")
+        # print("deleted all pages and put back to page pool")
         delete_entry_from_directory(rel,att)
         delete_temp_file(file_to_open,page_pool__index_folder)
     except Exception as e:
-        print(e)
+        # print(e)
+        pass
 
 # removeTree(supplier_string, "sid")
 # removeTree("Supply","pid")
@@ -155,9 +156,10 @@ def removeTable(rel):
 
 
 
-removeTable("Suppliers_1574264537.txt")
+# removeTable("Suppliers_1574264537.txt")
 
 
-# removeTree(supplier_string,"sid")
+removeTree(supplier_string,"sid")
+removeTree(supply_string,"pid")
 
 

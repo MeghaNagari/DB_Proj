@@ -66,17 +66,6 @@ write_query("For each supplier who supplied products with a cost of 47 or higher
 displayTable(res,query_result_txt)
 
 
-#
-# from program.remove import removeTree
-#
-# removeTree(supplier_string,sid_attr)
-# result = select(supplier_string,pid_attr,"=","s23")
-# displayTable(result,query_result_txt)
-
-
-# result = join(supplier_string,sid_attr,supply_string,sid_attr)
-# file_content = read_file_content(schemas_path,"Suppliers_Supply_1574143652.txt")
-
 
 
 

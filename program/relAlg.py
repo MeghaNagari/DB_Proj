@@ -194,9 +194,9 @@ def search_in_tree(rel, att, op, val,join_array):
                     # print(my_content[int(index)])
                     result.append(my_content[int(index)])
                     write_to_file(file_to_be_created,result,schema)
-                    # print(
-                    #     "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                    #     cost_of_search + 1)  # for reading the record add 1
+                    print(
+                        "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                        cost_of_search + 1)  # for reading the record add 1
 
                 else:
                     try:
@@ -215,9 +215,9 @@ def search_in_tree(rel, att, op, val,join_array):
                         # print(my_content[int(index)])
                         result.append(my_content[int(index)])
                         write_to_file(file_to_be_created, result,schema)
-                    # print(
-                    #     "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                    #     cost_of_search + len(page_to_search))  # for reading the records
+                    print(
+                        "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
+                        cost_of_search + len(page_to_search))  # for reading the records
     return file_to_be_created
 
 
@@ -226,9 +226,9 @@ def write_to_file(file,content,schema_array):
            for i in content:
                for idx,j in enumerate(schema_array):
                    try:
-                        i[idx] = i[idx]+"|"+j
+                        i[idx] = i[idx]+":"+j
                    except TypeError:
-                       i[idx] = str(i[idx]) + "|" + j
+                       i[idx] = str(i[idx]) + ":" + j
                        print()
 
     f = open(str(schemas_path) + "\\" + file, "w+")
@@ -243,7 +243,7 @@ def get_result_for_comparison(op, file_content, att,val):
             record = i
             for j in record:
                 if att in str(j):
-                    cost_to_compare = j.split("|")
+                    cost_to_compare = j.split(":")
                     check_record(op,val,i,cost_to_compare[0],result_array)
     print("DF")
     return result_array
@@ -348,7 +348,7 @@ def select(rel, att, op, val):
     file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
     write_to_file(file_to_be_created,result,result_schema)
     print(file_to_be_created)
-    # print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
+    print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
     return file_to_be_created
 
     #
@@ -372,7 +372,7 @@ def get_result_array(file_content, att_list):
             for k in i:
                 val = str(k)
                 if j in val:
-                    val = val.split("|")[0]
+                    val = val.split(":")[0]
                     result_array.append(val)
         final_array.append(result_array)
     # print(result_array)
@@ -499,8 +499,8 @@ def join_all_with_sid(sid, file_content,record):
     result = []
     for j in file_content:
         if sid in str(j):
-            j.append(record[1]+"|"+"sname")
-            j.append(record[2]+"|"+"address")
+            j.append(record[1]+":"+"sname")
+            j.append(record[2]+":"+"address")
             result.append(j)
 
     return result
@@ -656,24 +656,3 @@ def join(rel1, att1, rel2, att2):
     write_to_file(file_to_be_created,result,final_schema)
     return file_to_be_created
 
-
-# under_22 = [rider for rider in people if rider[1] < 22]
-
-# select(product_string, "color", "=", "white")
-# select(supplier_string, "sname", "=", "Carter")
-
-# select(supplier_string, "sname", "=", "Carter")
-# select(supplier_string, "sid", "=", "s19")
-# select(supply_string, "pid", "=", "p01")
-
-
-# project("Suppliers_1574222870.txt", "sname")
-# project("Supply_1574224162.txt","sid")
-# project("Supply_1574232410.txt","sid")
-
-# search_in_tree(supplier_string,"sid","=","s23")
-
-# select("Suppliers_Supply_1574230245.txt","pid","=","p15")
-
-# join(product_string, "pid", supply_string, "pid")
-# join(supplier_string, "sid", supply_string, "sid")
