@@ -13,7 +13,7 @@ pid_attr = "pid"
 query_result_txt = "queryResult.txt"
 
 
-# /query-1
+# query-1
 result = select(supplier_string,sid_attr,"=","s23")
 # print(result)
 file = project(result,"sname")

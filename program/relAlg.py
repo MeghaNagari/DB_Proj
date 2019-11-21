@@ -518,7 +518,11 @@ def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
         # print("done with joining")
     final_cost = cost + join_cost
     print("cost of joining with B+ tree on "+search_in_tree_rel+ " = ",cost+join_cost)
-    write_to_file(file_to_be_created, final_array)
+    try:
+        write_to_file(file_to_be_created, final_array)
+    except Exception as e:
+        print("join exception = "+e)
+
     return file_to_be_created
 
 
@@ -555,7 +559,7 @@ def join_uncommon_relations(rel1, att1, rel2, att2):
         res_array = join_all_with_sid(j[0],file_content,j,cost)
         for m in res_array:
             final_res.append(m)
-    print("cost for "+rel1+" "+rel2, int(cost/2))
+    print("cost for joining "+rel1+" "+rel2, int(cost/2))
     return final_res
 
 
@@ -699,11 +703,11 @@ def join(rel1, att1, rel2, att2):
                 except Exception as e:
                     print(e)
     if not (is_bplustree_existing(rel1_string) or is_bplustree_existing(rel2_string)) and not err:
-        print("cost of joining without B tree on "+tree_on+ " = ", int(cost/2))
-    if is_bplustree_existing(rel1_string) and err:
-        print("cost of joining with B tree on "+rel1_string+ " = ", final_cost)
-    if is_bplustree_existing(rel2_string) and err:
-        print("cost of joining with B tree on " + rel2_string + " = ", final_cost)
+        print("cost of joining without B tree on "+rel1_string+" and "+rel2_string+" = ", int(cost/2))
+    # if is_bplustree_existing(rel1_string) and err:
+    #     print("cost of joining with B tree on "+rel1_string+ " = ", final_cost)
+    # if is_bplustree_existing(rel2_string) and err:
+    #     print("cost of joining with B tree on " + rel2_string + " = ", final_cost)
     print(file_to_be_created)
     write_to_file(file_to_be_created,result,final_schema)
     return file_to_be_created
