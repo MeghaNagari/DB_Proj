@@ -363,7 +363,7 @@ def select(rel, att, op, val):
     if ".txt" not in rel:
         file_to_be_created = rel+str(int(time.time())) + ".txt"
     else:
-        file_to_be_created = rel+str(int(time.time())) + ".txt"
+        file_to_be_created = "test_"+str(int(time.time())) + ".txt"
     write_to_file(file_to_be_created,result,result_schema)
     print(file_to_be_created)
     print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
@@ -401,7 +401,7 @@ def project(rel, *att_list):
     if ".txt" not in rel:
         file_to_be_created = rel+str(int(time.time())) + ".txt"
     else:
-        file_to_be_created = rel+str(int(time.time())) + ".txt"
+        file_to_be_created = "test_"+str(int(time.time())) + ".txt"
     if rel == supplier_string:
         file_names = get_files(supplier_data_folder)
         my_result_list = []
@@ -682,10 +682,12 @@ def join(rel1, att1, rel2, att2):
         schema_2.append("cost")
     result = []
     final_schema = []
+    cost_rel1 = 0
+    cost_rel2 = 0
     for x in rel1:
-        cost += 1
+        cost_rel1 += 1
         for y in rel2:
-            cost += 1
+            cost_rel2 += 1
             if x[index_attr_1] == y[index_attr_2]:
                 myobj = []
                 try:
@@ -702,7 +704,7 @@ def join(rel1, att1, rel2, att2):
                 except Exception as e:
                     print(e)
     if not (is_bplustree_existing(rel1_string) or is_bplustree_existing(rel2_string)) and not err:
-        print("cost of joining without B tree on "+rel1_string+" and "+rel2_string+" = ", int(cost/2))
+        print("cost of joining without B tree on "+rel1_string+" and "+rel2_string+" = ", int(int(cost_rel1)/2 +int(cost_rel2)/4))
     # if is_bplustree_existing(rel1_string) and err:
     #     print("cost of joining with B tree on "+rel1_string+ " = ", final_cost)
     # if is_bplustree_existing(rel2_string) and err:
