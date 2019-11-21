@@ -56,17 +56,23 @@ def delete_page_and_put_in_page_pool(page_name,data_folder,data_forlder_path_for
     if data_forlder_path_for_rel != None:
         if os.path.exists(str(data_forlder_path_for_rel) + "\\" + page_name):
             os.remove(str(data_forlder_path_for_rel) + "\\" + page_name)
-    try:
-         if os.path.exists(str(data_folder)+"\\"+page_name):
-          os.remove(str(data_folder)+"\\"+page_name)
-          page_pool_file = data_folder / "pagePool.txt"
-          page_names = page_pool_file.read_text()
-          file_array = json.loads(page_names)
-          file_array.append(page_name)
-          put_page_in_page_pool(file_array,page_pool_file)
+            page_pool_file = data_folder / "pagePool.txt"
+            page_names = page_pool_file.read_text()
+            file_array = json.loads(page_names)
+            file_array.append(page_name)
+            put_page_in_page_pool(file_array, page_pool_file)
+    else:
+        try:
+            if os.path.exists(str(data_folder)+"\\"+page_name):
+                os.remove(str(data_folder)+"\\"+page_name)
+                page_pool_file = data_folder / "pagePool.txt"
+                page_names = page_pool_file.read_text()
+                file_array = json.loads(page_names)
+                file_array.append(page_name)
+                put_page_in_page_pool(file_array,page_pool_file)
 
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
 
 
 
@@ -159,7 +165,7 @@ def removeTable(rel):
 # removeTable("Suppliers_1574264537.txt")
 
 
-removeTree(supplier_string,"sid")
-removeTree(supply_string,"pid")
+# removeTree(supplier_string,"sid")
+removeTable(supplier_string)
 
 

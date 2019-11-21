@@ -58,16 +58,6 @@ def read_page_write_content(page_to_read,root_file_name,folder):
         if ".txt" in i:
             read_page_write_content(i, root_file_name,folder)
 
-def create_test_tree(rel, root_file_name):
-    file_content = read_file_content(page_pool__index_folder, root_file_name)
-    file_name_for_creation = rel + "Temp.txt"
-    if os.path.exists(str(tree_pic_folder) + "\\" + file_name_for_creation):
-        os.remove(str(tree_pic_folder) + "\\" + file_name_for_creation)
-    write_file_content(file_content, file_name_for_creation, root_file_name,page_pool__index_folder)
-    for i in file_content[2]:
-        if ".txt" in i:
-            read_page_write_content(i, file_name_for_creation,page_pool__index_folder)
-    # print(file_name_for_creation)
 
 def displayTree(root_file_name):
     file_content = read_file_content(page_pool__index_folder,root_file_name)
@@ -141,6 +131,6 @@ def displayTable(rel, fname):
 
 
 
-displayTree("pg16.txt")
-# displayTree("pg17.txt")
+# displayTree("pg16.txt")
+displayTree("pg17.txt")
 # displayTable(supply_string,"Supply.txt")

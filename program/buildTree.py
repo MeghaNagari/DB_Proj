@@ -15,6 +15,8 @@ product_data_folder = Path(my_path + "/data/Products")
 supply_data_folder = Path(my_path + "/data/Supply")
 schemas_path = Path(my_path + "/data")
 page_pool__index_folder = Path(my_path+"/index")
+tree_pic_folder = Path(my_path+"/treePic")
+
 sid_idx = 0
 sname_idx = 1
 address_idx = 2
@@ -618,9 +620,35 @@ def is_bplustree_existing(rel):
     else:
         return False
 
+def write_file_content(file_content,root_page,my_page,folder):
+    f = open(str(folder) + "\\"+root_page, "a")
+    if file_content[0] == "I"and file_content[1] != "Nil":
+        f.write("\t"+my_page + ":"+json.dumps(file_content)+"\n")
+    elif file_content[0] == "L":
+        f.write("\t\t"+my_page + ":"+json.dumps(file_content)+"\n")
+    else:
+        f.write(my_page + ":"+json.dumps(file_content)+"\n")
+    f.close()
+
+def read_page_write_content(page_to_read,root_file_name,folder):
+    file_content = read_file_content(page_pool__index_folder,page_to_read)
+    write_file_content(file_content,root_file_name,page_to_read,folder)
+    for i in file_content[2]:
+        if ".txt" in i:
+            read_page_write_content(i, root_file_name,folder)
+
+def create_test_tree(rel, root_file_name):
+    file_content = read_file_content(page_pool__index_folder, root_file_name)
+    file_name_for_creation = rel + "Temp.txt"
+    if os.path.exists(str(tree_pic_folder) + "\\" + file_name_for_creation):
+        os.remove(str(tree_pic_folder) + "\\" + file_name_for_creation)
+    write_file_content(file_content, file_name_for_creation, root_file_name,page_pool__index_folder)
+    for i in file_content[2]:
+        if ".txt" in i:
+            read_page_write_content(i, file_name_for_creation,page_pool__index_folder)
+    # print(file_name_for_creation)
 
 def create_temp_tree(rel,my_page):
-    from program.display import create_test_tree
     create_test_tree(rel,my_page)
 
 
@@ -737,5 +765,5 @@ def build(rel, att, od):
 
 
 # build(supplier_string,"sid",2)
-# build(supply_string,"pid",2)
+build(supply_string,"pid",2)
 
