@@ -107,15 +107,15 @@ def delete_temp_file(file_to_open, page_pool__index_folder):
     except:
         pass
 
-def is_bplustree_existing(rel):
+def is_bplustree_existing(rel,att):
     string_content = Path(str(page_pool__index_folder) + "\\directory.txt").read_text()
-    if rel in string_content:
+    if rel in string_content and att in string_content:
         return True
     else:
         return False
 
 def removeTree(rel, att):
-    if not is_bplustree_existing(rel):
+    if not is_bplustree_existing(rel,att):
         print("Sorry, tree doesn't exist")
 
     file_to_open = rel+"Temp.txt"
@@ -174,8 +174,8 @@ def removeTable(rel):
 # removeTable("Suppliers_1574264537.txt")
 
 
-# removeTree(supplier_string,"sid")
-removeTree(supply_string,"pid")
+# removeTree(supplier_string,"pid")
+# removeTree(supply_string,"pid")
 # removeTable(supplier_string)
 
 

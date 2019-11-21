@@ -238,21 +238,24 @@ def write_to_file(file,content,schema_array):
     f.close()
 
 
-def get_result_for_comparison(op, file_content, att,val,cost):
+def get_result_for_comparison(op, file_content, att,val,cost_initial):
+    global cost
     result_array = []
     if len(file_content)>0:
         for i in file_content:
-            cost += 1
+            cost_initial += 1
             record = i
             for j in record:
                 if att in str(j):
                     cost_to_compare = j.split(":")
                     check_record(op,val,i,cost_to_compare[0],result_array)
+    cost = cost_initial
     return result_array
 
 
 def select(rel, att, op, val):
     global cost_of_search
+    global cost
     cost_of_search = 0
     result_schema = []
     is_tree_existing = is_bplustree_existing(rel)
@@ -677,7 +680,8 @@ def join(rel1, att1, rel2, att2):
                     result.append(myobj)
                 except Exception as e:
                     print(e)
-    print("cost of joining without B tree on"+rel1_string+" and "+rel2_string+" = ", int(cost/2))
+    print("cost of joining without B tree on "+rel1_string+" and "+rel2_string+" = ", int(cost/2))
+    print(file_to_be_created)
     write_to_file(file_to_be_created,result,final_schema)
     return file_to_be_created
 
