@@ -155,7 +155,7 @@ def get_page_to_search(nav_array,compare_number,type,rel):
     return nav_array[len(nav_array) -1]
 
 
-def search_in_tree(rel, att, op, val,join_array,cost):
+def search_in_tree(rel, att, op, val,join_array):
     file_to_be_created = rel+"_"+str(int(time.time()))+".txt"
     global cost_of_search
     cost_of_search = 0
@@ -265,10 +265,10 @@ def select(rel, att, op, val):
         result_schema = ["sid","sname","address"]
         if is_tree_existing and att =="sid" and op == "=":
             cost_of_search = 0
-            file = search_in_tree(rel, att, op, val,None,cost_of_search)
+            file = search_in_tree(rel, att, op, val,None)
             print(
                 "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                cost_of_search)
+                cost_of_search+1)
             print(file)
             return file
         file_names = get_files(supplier_data_folder)
@@ -321,10 +321,10 @@ def select(rel, att, op, val):
         result_schema = ["sid","pid","cost"]
         if is_tree_existing and att =="pid":
             cost_of_search = 0
-            file = search_in_tree(rel, att, op, val,None,cost_of_search)
+            file = search_in_tree(rel, att, op, val,None)
             print(
                 "With the B+ tree, the cost of searching " + att + " " + op + " " + " " + val + " on " + rel + " is ",
-                cost_of_search)
+                cost_of_search+1)
             print(file)
             return file
         file_names = get_files(supply_data_folder)
@@ -364,7 +364,7 @@ def select(rel, att, op, val):
     if ".txt" not in rel:
         file_to_be_created = rel+str(int(time.time())) + ".txt"
     else:
-        file_to_be_created = "test"+str(int(time.time()))
+        file_to_be_created = rel+str(int(time.time())) + ".txt"
     write_to_file(file_to_be_created,result,result_schema)
     print(file_to_be_created)
     print("Without the B+ tree, the cost of searching "+att+" "+op+" "+" "+val+" on "+rel+" is ", cost_of_search)
@@ -402,7 +402,7 @@ def project(rel, *att_list):
     if ".txt" not in rel:
         file_to_be_created = rel+str(int(time.time())) + ".txt"
     else:
-        file_to_be_created = "test_"+str(int(time.time())) + ".txt"
+        file_to_be_created = rel+str(int(time.time())) + ".txt"
     if rel == supplier_string:
         file_names = get_files(supplier_data_folder)
         my_result_list = []
@@ -465,8 +465,12 @@ def project(rel, *att_list):
     write_to_file(file_to_be_created,my_result_list,None)
     return file_to_be_created
 
+join_cost = 0
+final_cost = 0
 
 def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
+    global join_cost
+    global final_cost
     cost = 0
     p_key = None
     search_in_tree_rel = None
@@ -485,18 +489,21 @@ def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
     if rel1 == supplier_string or rel2 == supplier_string:
         supply_file_names = get_files(supply_data_folder)
         cost = 0
+        join_cost = 0
         for i in supply_file_names:
             h = read_file_content(supply_data_folder, i)
             cost += 1
             for j in h:
                 join_array = []
                 search_in_tree(supplier_string, p_key, "=", j[0], join_array)
+                join_cost += cost_of_search+1
                 if len(join_array) > 0:
                     for m in join_array:
                         final_array.append(list(dict.fromkeys(j + m)))
     if rel1 == product_string or rel2 == product_string:
         product_file_names = get_files(product_data_folder)
         product_list = []
+        join_cost = 0
         for i in product_file_names:
             h = read_file_content(product_data_folder, i)
             cost += 1
@@ -504,11 +511,13 @@ def join_using_tree(rel1, att1, rel2, att2,file_to_be_created):
                 product_list.append(j)
                 join_array = []
                 search_in_tree(supply_string,p_key,"=",j[0],join_array)
+                join_cost += cost_of_search+1
                 if len(join_array) > 0:
                     for m in join_array:
                         final_array.append(list(dict.fromkeys(j+m)))
         # print("done with joining")
-    print("cost of joining with B+ tree on "+rel1 +" and "+rel2+" = ",cost)
+    final_cost = cost + join_cost
+    print("cost of joining with B+ tree on "+search_in_tree_rel+ " = ",cost+join_cost)
     write_to_file(file_to_be_created, final_array)
     return file_to_be_created
 
@@ -551,17 +560,26 @@ def join_uncommon_relations(rel1, att1, rel2, att2):
 
 
 def join(rel1, att1, rel2, att2):
+    err = False
+    global final_cost
     rel1_string = rel1
     rel2_string = rel2
     if att1 != att2:
         raise AttributeError('Sorry, attributes must be same')
     file_to_be_created = rel1+"_"+rel2+"_"+str(int(time.time()))+".txt"
+    tree_on = ""
+    if is_bplustree_existing(rel1):
+        tree_on = rel1_string
+    if is_bplustree_existing(rel2):
+        tree_on = rel2_string
 
     try:
         if is_bplustree_existing(rel1) or is_bplustree_existing(rel2):
             join_using_tree(rel1, att1, rel2, att2,file_to_be_created)
             return file_to_be_created
-    except:
+    except Exception as e:
+        # print(e)
+        err = True
         pass
     result = []
     cost = 0
@@ -680,7 +698,12 @@ def join(rel1, att1, rel2, att2):
                     result.append(myobj)
                 except Exception as e:
                     print(e)
-    print("cost of joining without B tree on "+rel1_string+" and "+rel2_string+" = ", int(cost/2))
+    if not (is_bplustree_existing(rel1_string) or is_bplustree_existing(rel2_string)) and not err:
+        print("cost of joining without B tree on "+tree_on+ " = ", int(cost/2))
+    if is_bplustree_existing(rel1_string) and err:
+        print("cost of joining with B tree on "+rel1_string+ " = ", final_cost)
+    if is_bplustree_existing(rel2_string) and err:
+        print("cost of joining with B tree on " + rel2_string + " = ", final_cost)
     print(file_to_be_created)
     write_to_file(file_to_be_created,result,final_schema)
     return file_to_be_created

@@ -765,5 +765,5 @@ def build(rel, att, od):
 
 
 # build(supplier_string,"sid",2)
-# build(supply_string,"pid",2)
+build(supply_string,"pid",2)
 
